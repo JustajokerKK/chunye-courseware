@@ -7,22 +7,26 @@
 
 <style>
 :root {
-  --bg: #0d1b2a;
-  --card: #162035;
-  --brand: #60a5fa;
-  --ok: #4ade80;
-  --warn: #fbbf24;
-  --purple: #c084fc;
-  --text: #e8f4ff;
-  --muted: #8ba8c8;
-  --line: #253650;
+  /* 春夜闻笛 - 温润浅色主题 */
+  --bg: #fdf8f3;          /* 宣纸暖白 */
+  --card: #ffffff;        /* 纯白卡片 */
+  --brand: #4a7c9b;       /* 靛蓝（夜空色）*/
+  --ok: #5a9a6e;          /* 墨绿（柳色）*/
+  --warn: #d4915e;        /* 暖金（月色）*/
+  --purple: #8b6bae;      /* 紫藤（笛韵）*/
+  --text: #2c3e50;        /* 墨色文字 */
+  --muted: #7a8a9a;       /* 灰蓝辅助 */
+  --line: #e2d8cc;         /* 浅棕分割线 */
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   background: var(--bg);
+  background-image: 
+    radial-gradient(ellipse at 20% 10%, rgba(139,107,174,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(74,124,155,0.06) 0%, transparent 50%);
   color: var(--text);
-  font-family: -apple-system, "PingFang SC", sans-serif;
-  line-height: 1.8;
+  font-family: -apple-system, "PingFang SC", "Noto Serif SC", serif;
+  line-height: 1.9;
   font-size: 17px;
   padding: 20px;
   max-width: 1000px;
@@ -30,20 +34,40 @@ body {
 }
 h1, h2, h3 { color: var(--brand); margin: 20px 0 12px 0; }
 .poem-container {
-  background: linear-gradient(135deg, var(--card) 0%, #1e2d4a 100%);
-  border: 2px solid var(--purple);
+  background: linear-gradient(135deg, #fffef9 0%, #f8f0e5 50%, #ede4db 100%);
+  border: 2px solid #d4c4ad;
   border-radius: 16px;
-  padding: 32px;
+  padding: 36px 32px;
   margin: 24px 0;
   text-align: center;
-  box-shadow: 0 4px 30px rgba(192, 132, 252, 0.15);
+  box-shadow: 
+    0 2px 12px rgba(139,107,174,0.08),
+    0 0 40px rgba(212,145,94,0.06);
+  position: relative;
+  overflow: hidden;
 }
-.poem-title { font-size: 32px; color: var(--purple); margin-bottom: 12px; letter-spacing: 4px; }
-.poem-author { font-size: 18px; color: var(--muted); margin-bottom: 28px; }
-.poem-content { font-size: 24px; line-height: 2.2; letter-spacing: 2px; }
+.poem-container::before {
+  content: '🌙';
+  position: absolute;
+  top: 14px;
+  right: 20px;
+  font-size: 22px;
+  opacity: 0.5;
+}
+.poem-container::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='1.5' fill='%23d4c4ad' opacity='0.3'/%3E%3C/svg%3E") repeat;
+  pointer-events: none;
+  opacity: 0.4;
+}
+.poem-title { font-size: 32px; color: var(--purple); margin-bottom: 12px; letter-spacing: 4px; position: relative; z-index: 1; }
+.poem-author { font-size: 18px; color: var(--muted); margin-bottom: 28px; position: relative; z-index: 1; }
+.poem-content { font-size: 24px; line-height: 2.3; letter-spacing: 3px; color: #3d3228; position: relative; z-index: 1; }
 button {
   background: var(--brand);
-  color: var(--bg);
+  color: #fff;
   border: none;
   padding: 12px 28px;
   border-radius: 10px;
@@ -53,6 +77,7 @@ button {
   margin: 6px 4px;
   min-height: 48px;
   transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(74,124,155,0.2);
 }
 button:hover { opacity: 0.9; transform: translateY(-1px); }
 .quiz-options button {
@@ -60,7 +85,7 @@ button:hover { opacity: 0.9; transform: translateY(-1px); }
   width: 100%;
   margin: 10px 0;
   padding: 14px 20px;
-  background: var(--card);
+  background: #faf7f2;
   color: var(--text);
   border: 2px solid var(--line);
   text-align: left;
@@ -72,11 +97,11 @@ button:hover { opacity: 0.9; transform: translateY(-1px); }
 .quiz-options button:hover:not(:disabled) { border-color: var(--brand); transform: translateX(4px); }
 .quiz-options button.correct {
   border-color: var(--ok) !important;
-  background: rgba(74, 222, 128, 0.15) !important;
+  background: rgba(90,154,110,0.12) !important;
 }
 .quiz-options button.incorrect {
   border-color: var(--warn) !important;
-  background: rgba(251, 191, 36, 0.15) !important;
+  background: rgba(212,145,94,0.12) !important;
 }
 .feedback {
   padding: 14px 18px;
@@ -87,11 +112,11 @@ button:hover { opacity: 0.9; transform: translateY(-1px); }
 }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 .feedback.show { display: block; }
-.feedback.correct { background: rgba(74, 222, 128, 0.15); border: 2px solid var(--ok); color: var(--ok); }
-.feedback.incorrect { background: rgba(251, 191, 36, 0.15); border: 2px solid var(--warn); color: var(--warn); }
+.feedback.correct { background: rgba(90,154,110,0.1); border: 2px solid var(--ok); color: #3d7a4e; }
+.feedback.incorrect { background: rgba(212,145,94,0.1); border: 2px solid var(--warn); color: #a66a35; }
 .word-annotation {
-  background: var(--bg);
-  border: 1px solid var(--line);
+  background: #faf7f2;
+  border: 1px solid #e8dfd3;
   border-radius: 8px;
   padding: 10px 14px;
   margin: 8px 0;
@@ -99,24 +124,25 @@ button:hover { opacity: 0.9; transform: translateY(-1px); }
 }
 .word-annotation strong { color: var(--purple); }
 #map-svg {
-  background: #0a1525;
+  background: linear-gradient(to bottom, #e8e0d6 0%, #ddd4c8 100%);
   border-radius: 12px;
   cursor: pointer;
   touch-action: none;
+  border: 1px solid #d4c4ad;
 }
 #draggable-moon { cursor: grab; user-select: none; }
 #draggable-moon.dragging { cursor: grabbing; opacity: 0.75; }
 .drop-circle { transition: all 0.3s; }
 .drop-circle.highlight { stroke: #60a5fa !important; stroke-width: 4 !important; }
 .drop-circle.placed { fill: #c084fc; fill-opacity: 0.3; }
-.section-card { background: var(--card); padding: 24px; border-radius: 12px; margin: 16px 0; }
+.section-card { background: var(--card); padding: 24px; border-radius: 12px; margin: 16px 0; box-shadow: 0 1px 6px rgba(139,107,174,0.05); }
 .hint-btn {
   display: block;
   width: 100%;
   margin: 8px 0;
   padding: 16px 20px;
-  background: var(--card);
-  border: 2px solid var(--line);
+  background: #faf7f2;
+  border: 2px solid #e2d8cc;
   border-radius: 10px;
   color: var(--text);
   font-size: 16px;
@@ -124,10 +150,10 @@ button:hover { opacity: 0.9; transform: translateY(-1px); }
   cursor: pointer;
   transition: all 0.2s;
 }
-.hint-btn:hover { border-color: var(--brand); transform: translateX(4px); }
-.info-box { background: var(--bg); padding: 16px 20px; border-radius: 10px; margin: 16px 0; border-left: 4px solid var(--brand); }
-.tip-box { background: rgba(96, 165, 250, 0.08); padding: 12px 16px; border-radius: 8px; margin-top: 12px; border-left: 4px solid var(--brand); }
-.tip-purple { background: rgba(192, 132, 252, 0.08); border-left-color: var(--purple); padding: 12px 16px; border-radius: 8px; margin-top: 12px; }
+.hint-btn:hover { border-color: var(--brand); transform: translateX(4px); background: #fff; }
+.info-box { background: #f8f4ef; padding: 16px 20px; border-radius: 10px; margin: 16px 0; border-left: 4px solid var(--brand); }
+.tip-box { background: rgba(74,124,155,0.07); padding: 12px 16px; border-radius: 8px; margin-top: 12px; border-left: 4px solid var(--brand); }
+.tip-purple { background: rgba(139,107,174,0.07); border-left-color: var(--purple); padding: 12px 16px; border-radius: 8px; margin-top: 12px; }
 </style>
 </head>
 <body>
@@ -258,53 +284,77 @@ button:hover { opacity: 0.9; transform: translateY(-1px); }
 
   <div class="section-card">
     <svg id="map-svg" viewBox="0 0 800 500" width="100%" height="340" xmlns="http://www.w3.org/2000/svg">
-      <rect width="800" height="500" fill="#0a1525" rx="12"/>
+      <rect width="800" height="500" fill="#f0ebe0" rx="12"/>
 
-      <!-- 城市背景 -->
+      <!-- 春夜天空渐变 -->
+      <defs>
+        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#2a3050" />
+          <stop offset="60%" stop-color="#4a5578" />
+          <stop offset="100%" stop-color="#8a9ab8" />
+        </linearGradient>
+        <radialGradient id="moonGlow">
+          <stop offset="0%" stop-color="#fff8e7" stop-opacity="0.9"/>
+          <stop offset="50%" stop-color="#f0e4c8" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#f0e4c8" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="groundGrad" x1="0%" y1="0" x2="0%" y2="1">
+          <stop offset="0%" stop-color="#c8b898" />
+          <stop offset="100%" stop-color="#a89878" />
+        </linearGradient>
+      </defs>
+      
+      <!-- 天空区域 -->
+      <rect x="10" y="10" width="780" height="260" fill="url(#skyGrad)" rx="8"/>
+      
+      <!-- 地面/城市区域 -->
+      <rect x="10" y="270" width="780" height="220" fill="url(#groundGrad)" rx="0"/>
+
       <!-- 城墙 -->
-      <rect x="80" y="280" width="640" height="180" fill="none" stroke="#253650" stroke-width="2" rx="8" stroke-dasharray="8,4"/>
-      <text x="400" y="310" text-anchor="middle" fill="#253650" font-size="13" opacity="0.7">洛 阳 城</text>
+      <rect x="80" y="280" width="640" height="180" fill="none" stroke="#8a7a5a" stroke-width="2" rx="8" stroke-dasharray="8,4"/>
+      <text x="400" y="310" text-anchor="middle" fill="#6a5a3a" font-size="13" opacity="0.8">洛 阳 城</text>
 
-      <!-- 城内房屋 -->
-      <rect x="120" y="330" width="40" height="30" fill="#1a2840" rx="3"/>
-      <rect x="180" y="340" width="35" height="25" fill="#1e2d4a" rx="3"/>
-      <rect x="240" y="325" width="45" height="35" fill="#162035" rx="3"/>
-      <rect x="310" y="335" width="38" height="28" fill="#1a2840" rx="3"/>
-      <rect x="370" y="320" width="50" height="40" fill="#1e2d4a" rx="3"/>
-      <rect x="440" y="330" width="40" height="30" fill="#162035" rx="3"/>
-      <rect x="500" y="340" width="45" height="28" fill="#1a2840" rx="3"/>
-      <rect x="570" y="325" width="38" height="35" fill="#1e2d4a" rx="3"/>
-      <rect x="630" y="335" width="42" height="30" fill="#162035" rx="3"/>
+      <!-- 城内房屋（暖色调）-->
+      <rect x="120" y="330" width="40" height="30" fill="#b8a888" rx="3"/>
+      <rect x="180" y="340" width="35" height="25" fill="#c8b898" rx="3"/>
+      <rect x="240" y="325" width="45" height="35" fill="#a89868" rx="3"/>
+      <rect x="310" y="335" width="38" height="28" fill="#b8a888" rx="3"/>
+      <rect x="370" y="320" width="50" height="40" fill="#c8b898" rx="3"/>
+      <rect x="440" y="330" width="40" height="30" fill="#a89868" rx="3"/>
+      <rect x="500" y="340" width="45" height="28" fill="#b8a888" rx="3"/>
+      <rect x="570" y="325" width="38" height="35" fill="#c8b898" rx="3"/>
+      <rect x="630" y="335" width="42" height="30" fill="#a89868" rx="3"/>
 
       <!-- 春天柳树 -->
-      <text x="160" y="375" font-size="20" opacity="0.6">🌿</text>
-      <text x="400" y="385" font-size="20" opacity="0.6">🌿</text>
-      <text x="620" y="378" font-size="20" opacity="0.6">🌿</text>
+      <text x="160" y="375" font-size="22" opacity="0.85">🌿</text>
+      <text x="400" y="385" font-size="22" opacity="0.85">🌿</text>
+      <text x="620" y="378" font-size="22" opacity="0.85">🌿</text>
 
-      <!-- 诗人（右下角城外） -->
-      <circle cx="640" cy="220" r="16" fill="#c084fc" opacity="0.9"/>
-      <text x="640" y="225" text-anchor="middle" font-size="13" fill="#0d1b2a" font-weight="bold" pointer-events="none">诗</text>
-      <text x="640" y="250" text-anchor="middle" fill="#c084fc" font-size="13">诗人</text>
+      <!-- 诗人（右下角城外）-->
+      <circle cx="640" cy="200" r="18" fill="#8b6bae" opacity="0.9"/>
+      <text x="640" y="206" text-anchor="middle" font-size="14" fill="#fff" font-weight="bold" pointer-events="none">诗</text>
+      <text x="640" y="230" text-anchor="middle" fill="#6a4a8e" font-size="13" font-weight="bold">李白</text>
 
-      <!-- 笛声起点（城内某处） -->
-      <circle id="flute-source" cx="400" cy="350" r="12" fill="#c084fc" opacity="0.8"/>
-      <text x="400" y="355" text-anchor="middle" font-size="13" fill="#0d1b2a" font-weight="bold" pointer-events="none">🎵</text>
-      <text x="400" y="375" text-anchor="middle" fill="#c084fc" font-size="12">笛声起</text>
+      <!-- 笛声起点（城内某处）-->
+      <circle id="flute-source" cx="400" cy="350" r="14" fill="#8b6bae" opacity="0.85"/>
+      <text x="400" y="356" text-anchor="middle" font-size="15" fill="#fff" font-weight="bold" pointer-events="none">🎵</text>
+      <text x="400" y="378" text-anchor="middle" fill="#6a4a8e" font-size="12" font-weight="bold">笛声起</text>
 
-      <!-- 扩散圆环（动画） -->
-      <circle id="wave1" cx="400" cy="350" r="30" fill="none" stroke="#c084fc" stroke-width="2" opacity="0"/>
-      <circle id="wave2" cx="400" cy="350" r="30" fill="none" stroke="#60a5fa" stroke-width="2" opacity="0"/>
-      <circle id="wave3" cx="400" cy="350" r="30" fill="none" stroke="#c084fc" stroke-width="1.5" opacity="0"/>
-      <circle id="wave4" cx="400" cy="350" r="30" fill="none" stroke="#60a5fa" stroke-width="1.5" opacity="0"/>
+      <!-- 扩散圆环（动画）-->
+      <circle id="wave1" cx="400" cy="350" r="30" fill="none" stroke="#8b6bae" stroke-width="2" opacity="0"/>
+      <circle id="wave2" cx="400" cy="350" r="30" fill="none" stroke="#4a7c9b" stroke-width="2" opacity="0"/>
+      <circle id="wave3" cx="400" cy="350" r="30" fill="none" stroke="#8b6bae" stroke-width="1.5" opacity="0"/>
+      <circle id="wave4" cx="400" cy="350" r="30" fill="none" stroke="#4a7c9b" stroke-width="1.5" opacity="0"/>
 
-      <!-- 春夜月亮 -->
-      <circle cx="680" cy="80" r="40" fill="#e8d5ff" opacity="0.9"/>
-      <text x="680" y="87" text-anchor="middle" font-size="24" opacity="0.6">🌙</text>
-      <text x="680" y="135" text-anchor="middle" fill="#e8d5ff" font-size="13" opacity="0.7">春夜</text>
+      <!-- 春夜月亮（带光晕）-->
+      <circle cx="680" cy="75" r="55" fill="url(#moonGlow)" opacity="0.6"/>
+      <circle cx="680" cy="75" r="32" fill="#fff8e7" opacity="0.95"/>
+      <text x="680" y="83" text-anchor="middle" font-size="22" opacity="0.7">🌙</text>
+      <text x="680" y="140" text-anchor="middle" fill="#5a4a6a" font-size="13" opacity="0.8" font-weight="bold">春夜</text>
 
       <!-- 标注文字 -->
-      <text x="400" y="430" text-anchor="middle" fill="#8ba8c8" font-size="13">—— 散入春风满洛城 ——</text>
-      <text x="400" y="450" text-anchor="middle" fill="#8ba8c8" font-size="12">点击 🎵 图标，让笛声扩散！</text>
+      <text x="400" y="430" text-anchor="middle" fill="#6a5a4a" font-size="14" font-weight="bold">—— 散入春风满洛城 ——</text>
+      <text x="400" y="452" text-anchor="middle" fill="#8a7a6a" font-size="12">点击 🎵 图标，让笛声扩散！</text>
     </svg>
 
     <div class="info-box" style="margin-top: 16px;">
