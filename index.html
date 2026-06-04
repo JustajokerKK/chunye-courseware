@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>銆婃槬澶滄礇鍩庨椈绗涖€? 浜掑姩璇句欢</title>
+
+<style>
+:root {
+  --bg: #0d1b2a;
+  --card: #162035;
+  --brand: #60a5fa;
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --purple: #c084fc;
+  --text: #e8f4ff;
+  --muted: #8ba8c8;
+  --line: #253650;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "PingFang SC", sans-serif;
+  line-height: 1.8;
+  font-size: 17px;
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+h1, h2, h3 { color: var(--brand); margin: 20px 0 12px 0; }
+.poem-container {
+  background: linear-gradient(135deg, var(--card) 0%, #1e2d4a 100%);
+  border: 2px solid var(--purple);
+  border-radius: 16px;
+  padding: 32px;
+  margin: 24px 0;
+  text-align: center;
+  box-shadow: 0 4px 30px rgba(192, 132, 252, 0.15);
+}
+.poem-title { font-size: 32px; color: var(--purple); margin-bottom: 12px; letter-spacing: 4px; }
+.poem-author { font-size: 18px; color: var(--muted); margin-bottom: 28px; }
+.poem-content { font-size: 24px; line-height: 2.2; letter-spacing: 2px; }
+button {
+  background: var(--brand);
+  color: var(--bg);
+  border: none;
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 6px 4px;
+  min-height: 48px;
+  transition: all 0.2s;
+}
+button:hover { opacity: 0.9; transform: translateY(-1px); }
+.quiz-options button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 14px 20px;
+  background: var(--card);
+  color: var(--text);
+  border: 2px solid var(--line);
+  text-align: left;
+  font-weight: normal;
+  font-size: 16px;
+  border-radius: 10px;
+  transition: all 0.25s;
+}
+.quiz-options button:hover:not(:disabled) { border-color: var(--brand); transform: translateX(4px); }
+.quiz-options button.correct {
+  border-color: var(--ok) !important;
+  background: rgba(74, 222, 128, 0.15) !important;
+}
+.quiz-options button.incorrect {
+  border-color: var(--warn) !important;
+  background: rgba(251, 191, 36, 0.15) !important;
+}
+.feedback {
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin: 14px 0;
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.feedback.show { display: block; }
+.feedback.correct { background: rgba(74, 222, 128, 0.15); border: 2px solid var(--ok); color: var(--ok); }
+.feedback.incorrect { background: rgba(251, 191, 36, 0.15); border: 2px solid var(--warn); color: var(--warn); }
+.word-annotation {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 8px 0;
+  font-size: 15px;
+}
+.word-annotation strong { color: var(--purple); }
+#map-svg {
+  background: #0a1525;
+  border-radius: 12px;
+  cursor: pointer;
+  touch-action: none;
+}
+#draggable-moon { cursor: grab; user-select: none; }
+#draggable-moon.dragging { cursor: grabbing; opacity: 0.75; }
+.drop-circle { transition: all 0.3s; }
+.drop-circle.highlight { stroke: #60a5fa !important; stroke-width: 4 !important; }
+.drop-circle.placed { fill: #c084fc; fill-opacity: 0.3; }
+.section-card { background: var(--card); padding: 24px; border-radius: 12px; margin: 16px 0; }
+.hint-btn {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  padding: 16px 20px;
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.hint-btn:hover { border-color: var(--brand); transform: translateX(4px); }
+.info-box { background: var(--bg); padding: 16px 20px; border-radius: 10px; margin: 16px 0; border-left: 4px solid var(--brand); }
+.tip-box { background: rgba(96, 165, 250, 0.08); padding: 12px 16px; border-radius: 8px; margin-top: 12px; border-left: 4px solid var(--brand); }
+.tip-purple { background: rgba(192, 132, 252, 0.08); border-left-color: var(--purple); padding: 12px 16px; border-radius: 8px; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<!-- ========== Hero + 璇楁瓕灞曠ず ========== -->
+<section id="hero">
+  <h1>馃幍 銆婃槬澶滄礇鍩庨椈绗涖€?/h1>
+  <p style="color: var(--muted); font-size: 19px;">鍜屾潕鐧戒竴璧凤紝鍦ㄦ礇闃崇殑鏄ュ閲岋紝鍚竴鏇茶浜烘兂瀹剁殑绗涘０</p>
+
+  <div class="poem-container" style="margin-top: 24px;">
+    <div class="poem-title">銆婃槬澶滄礇鍩庨椈绗涖€?/div>
+    <div class="poem-author">銆愬攼銆戞潕鐧?/div>
+    <div class="poem-content">
+      <p>璋佸鐜夌瑳鏆楅澹帮紝</p>
+      <p>鏁ｅ叆鏄ラ婊℃礇鍩庛€?/p>
+      <p>姝ゅ鏇蹭腑闂绘姌鏌筹紝</p>
+      <p>浣曚汉涓嶈捣鏁呭洯鎯呫€?/p>
+    </div>
+  </div>
+
+  <div class="info-box" style="margin-top: 20px;">
+    <p><strong>馃挕 鎬濊€冿細</strong>绗涘０鏈潵鏄棤褰㈢殑锛屼絾鏉庣櫧鍗磋瀹?鏁ｅ叆鏄ラ婊℃礇鍩?鈥斺€旀棤褰㈢殑澹伴煶鏄€庝箞"鏁ｅ紑"鐨勶紵涓轰粈涔堣繖棣栬瘲璁╁崈鐧惧勾鍚庣殑鎴戜滑锛屼緷鐒惰兘鎰熷彈鍒伴偅绉嶆兂瀹剁殑蹇冩儏锛?/p>
+  </div>
+</section>
+
+<!-- 闂閿氱偣 -->
+<section id="questions" style="margin: 32px 0;">
+  <h2>馃 鎺㈢储闂</h2>
+  <p style="color: var(--muted); margin-bottom: 12px;">鍦ㄥ涔犺繖棣栬瘲涔嬪墠锛屽厛鎬濊€冨嚑涓棶棰橈細</p>
+  <button class="hint-btn" onclick="showHint(1)">馃幍 绗涘０鏄?鏆楅澹?鈥斺€斾负浠€涔堜細"鏆?锛?/button>
+  <button class="hint-btn" onclick="showHint(2)">馃尶 "鎶樻煶"鏄粈涔堬紵涓轰粈涔堝惉鍒板畠浼氭兂瀹讹紵</button>
+  <button class="hint-btn" onclick="showHint(3)">馃彔 璇椾汉鍐欒繖棣栬瘲鏃讹紝鍙兘韬湪浣曞锛?/button>
+  <div id="hint-feedback" class="feedback"></div>
+</section>
+
+<!-- 瀛︿範鐩爣 -->
+<section id="objectives" style="margin: 32px 0;">
+  <h2>馃幆 瀛︿範鐩爣</h2>
+  <div class="section-card">
+    <p style="margin: 8px 0;">鉁?鑳芥祦鍒╄儗璇点€婃槬澶滄礇鍩庨椈绗涖€?/p>
+    <p style="margin: 8px 0;">鉁?鐞嗚В璇椾腑鍏抽敭璇嶏細鐜夌瑳銆佹殫椋炪€佹姌鏌炽€佹晠鍥?/p>
+    <p style="margin: 8px 0;">鉁?鎰熷彈鏉庣櫧鐢ㄥ０闊冲啓鎬濆康鐨勭嫭鐗规墜娉?/p>
+    <p style="margin: 8px 0;">鉁?浜嗚В"鎶樻煶"鐨勬枃鍖栧惈涔?/p>
+    <p style="margin: 8px 0;">鉁?鑳界敤鑷繁鐨勮瘽璇村嚭璇楁剰</p>
+  </div>
+</section>
+
+<!-- 璇惧墠灏忔祴 -->
+<section id="pretest" style="margin: 32px 0;">
+  <h2>馃摑 璇惧墠灏忔祴</h2>
+  <p style="color: var(--muted); margin-bottom: 16px;">绛旈敊浜嗗彲浠ラ噸鏂伴€夋嫨鍝︼綖</p>
+
+  <div class="section-card quiz-question" data-quiz-type="pre" data-question-num="1">
+    <p><strong>闂 1锛?/strong>鏉庣櫧鏄摢涓湞浠ｇ殑璇椾汉锛?/p>
+    <div class="quiz-options">
+      <button data-correct="false">A. 瀹嬩唬</button>
+      <button data-correct="true">B. 鍞愪唬</button>
+      <button data-correct="false">C. 闅嬩唬</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="section-card quiz-question" data-quiz-type="pre" data-question-num="2">
+    <p><strong>闂 2锛?/strong>鍙よ瘲涓殑"鎶樻煶"甯镐唬琛ㄤ粈涔堟儏鎰燂紵</p>
+    <div class="quiz-options">
+      <button data-correct="true">A. 绂诲埆銆佹€濆康鏁呬埂</button>
+      <button data-correct="false">B. 鏄ュぉ鏉ヤ簡</button>
+      <button data-correct="false">C. 澶忓ぉ寰堢儹</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+</section>
+
+<!-- 璁よ瘑鏉庣櫧 -->
+<section id="module1" style="margin: 32px 0;">
+  <h2>馃摎 璁よ瘑鏉庣櫧</h2>
+  <div class="section-card">
+    <h3>馃専 璇椾粰鏉庣櫧锛?01-762锛?/h3>
+    <p>鏉庣櫧鏄?strong style="color:var(--purple)">鍞愭湞</strong>鏈€浼熷ぇ鐨勬氮婕富涔夎瘲浜猴紝琚悗浜虹О涓?璇椾粰"銆備粬涓€鐢熸极娓稿悇鍦帮紝鍐欎笅浜嗚澶氭祦浼犲崈鍙ょ殑璇楃瘒銆傝繖棣栥€婃槬澶滄礇鍩庨椈绗涖€嬪啓浜庝粬<strong>婕父娌冲崡</strong>鏈熼棿銆?/p>
+
+    <div class="info-box">
+      <h4 style="color: var(--brand); margin-top: 0;">馃摉 鍒涗綔鑳屾櫙</h4>
+      <p>鏉庣櫧骞磋交鏃剁寮€瀹朵埂鍥涘窛锛屽洓澶勬极娓搞€傛湁涓€骞存槬澶╋紝浠栨梾灞呭湪<strong>娲涢槼</strong>銆傛礇闃虫槸鍙や唬闈炲父绻佸崕鐨勫煄甯傦紝涔熸槸鍞愭湞鐨勪笢閮姐€傛煇涓槬澶滐紝鏉庣櫧鐙嚜鍦ㄥ煄涓璧帮紝蹇界劧鍚埌杩滃浼犳潵鐨勭瑳澹帮紝閭ｇ瑳澹板惞濂忕殑鏄€婃姌鏉ㄦ煶銆嬧€斺€斾竴棣栧叧浜庣鍒拰鎬濅埂鐨勫彜鑰佹洸瀛愩€傛潕鐧藉惉浜嗭紝鎬濆康璧疯嚜宸辩殑瀹朵埂鍜屼翰浜猴紝浜庢槸鍐欎笅浜嗚繖棣栬瘲銆?/p>
+    </div>
+
+    <div class="info-box">
+      <h4 style="color: var(--brand); margin-top: 0;">馃椇锔?娲涢槼鍦ㄥ摢閲岋紵</h4>
+      <p>娲涢槼浣嶄簬浠婂ぉ鐨?strong>娌冲崡鐪?/strong>锛屾槸涓浗鍙や唬鍗佷笁鏈濆彜閮斤紝涓庤タ瀹夛紙闀垮畨锛夐綈鍚嶃€傜櫧椹銆侀緳闂ㄧ煶绐熼兘鍦ㄦ礇闃炽€?/p>
+    </div>
+  </div>
+</section>
+
+<!-- 閫愬彞鐞嗚В -->
+<section id="module2" style="margin: 32px 0;">
+  <h2>馃攳 閫愬彞鐞嗚В</h2>
+
+  <div class="section-card">
+    <h3>绗竴鍙ワ細璋佸鐜夌瑳鏆楅澹?/h3>
+
+    <div class="word-annotation"><strong>璋佸锛?/strong>鍝竴瀹躲€?strong style="color:var(--purple)">鏄皝瀹剁殑</strong>锛熻瘲浜轰笉鐭ラ亾锛屼絾琚瑳澹板惛寮曘€?/div>
+    <div class="word-annotation"><strong>鐜夌瑳锛?/strong>鐢ㄧ帀瑁呴グ鐨勭瑳瀛愶紝<strong style="color:var(--purple)">绮剧編鐨勭瑳瀛?/strong>锛屾殫绀哄惞绗涗汉鏈変慨鍏汇€?/div>
+    <div class="word-annotation"><strong>鏆楋細</strong>鎮勬倓鐨勶紝涓嶇煡閬撲粠鍝噷<strong style="color:var(--purple)">鎮勬倓鍦?/strong>浼犳潵銆?/div>
+    <div class="word-annotation"><strong>椋炲０锛?/strong>澹伴煶鍍忛暱浜嗙繀鑶€涓€鏍?strong style="color:var(--purple)">椋?/strong>鍑哄幓銆?/div>
+
+    <div class="tip-box"><strong>馃挕 鎰忔€濓細</strong>涓嶇煡閬撴槸璋佸鐨勭簿缇庣瑳瀛愶紝<strong>鎮勬倓鍦版妸绗涘０浼犱簡鍑烘潵</strong>銆?/div>
+    <div class="tip-purple"><strong>馃専 鍐欎綔鎵嬫硶锛?/strong>"鏆楅澹?鎶婃棤褰㈢殑绗涘０鍐欐垚浼氶鐨勪笢瑗匡紝鍙?strong>閫氭劅</strong>锛堟劅瑙夌浉閫氾級鈥斺€旇繖鏄潕鐧界殑楂樻槑涔嬪锛?/div>
+  </div>
+
+  <div class="section-card">
+    <h3>绗簩鍙ワ細鏁ｅ叆鏄ラ婊℃礇鍩?/h3>
+
+    <div class="word-annotation"><strong>鏁ｅ叆锛?/strong><strong style="color:var(--purple)">椋樻暎銆佽瀺鍏?/strong>銆?/div>
+    <div class="word-annotation"><strong>鏄ラ锛?/strong>鏄ュぉ鐨勯锛岃交杞荤殑銆佹殩鏆栫殑銆?/div>
+    <div class="word-annotation"><strong>婊℃礇鍩庯細</strong>鏁翠釜娲涢槼鍩庨兘鑳藉惉鍒帮紝<strong style="color:var(--purple)">婊″煄閮芥槸绗涘０</strong>銆?/div>
+
+    <div class="tip-box"><strong>馃挕 鎰忔€濓細</strong>绗涘０闅忕潃鏄ラ椋樻暎锛?strong>浼犻亶浜嗘暣涓礇闃冲煄</strong>銆?/div>
+    <div class="tip-purple"><strong>馃専 鍐欎綔鎵嬫硶锛?/strong>涓€涓?婊?瀛楋紝璇存槑绗涘０鏃犲涓嶅湪銆佹棤瀛斾笉鍏ャ€傚０闊虫棤褰紝鍗磋兘"婊?涓€搴у煄鈥斺€旇繖鏄?strong>浠ヨ櫄鍐欏疄</strong>鐨勫娉曪紒</div>
+  </div>
+
+  <div class="section-card">
+    <h3>绗笁鍙ワ細姝ゅ鏇蹭腑闂绘姌鏌?/h3>
+
+    <div class="word-annotation"><strong>姝ゅ锛?/strong><strong style="color:var(--purple)">杩欎釜澶滄櫄</strong>銆?/div>
+    <div class="word-annotation"><strong>鏇蹭腑锛?/strong>绗涘瓙鍚瑰鐨勬洸瀛愰噷闈€?/div>
+    <div class="word-annotation"><strong>闂绘姌鏌筹細</strong>鍚埌浜嗐€婃姌鏉ㄦ煶銆嬭繖鏀洸瀛愩€?strong style="color:var(--purple)">銆婃姌鏉ㄦ煶銆?/strong>鏄彜浠ｈ憲鍚嶇殑閫佸埆鏇层€?/div>
+
+    <div class="info-box">
+      <h4 style="color: var(--brand); margin-top: 0;">馃尶 "鎶樻煶"鐨勬枃鍖栧惈涔?/h4>
+      <p>鍙や唬鏈?鎶樻煶閫佸埆"鐨勪範淇楋細鏈嬪弸杩滆鏃讹紝浜轰滑浼氭姌涓€鏋濇煶鏉￠€佺粰浠栵紝琛ㄧず<strong>涓嶈垗鍜屾€濆康</strong>銆傘€婃姌鏉ㄦ煶銆嬫槸涓€棣栧彜鑰佺殑姝屾洸锛屽父鍦ㄩ€佸埆鏃舵紨鍞憋紝姝岃瘝涓厖婊′簡绂诲埆涔嬫儏銆?/p>
+      <p style="color:var(--muted); font-size:14px;">鍙よ瘲涓句緥锛氭煶姘搞€婇洦闇栭搩銆嬪啓閬?鏉ㄦ煶宀革紝鏅撻娈嬫湀"锛屼篃鏄敤"鏌?琛ㄨ揪绂诲埆涔嬫儏銆?/p>
+    </div>
+
+    <div class="tip-box"><strong>馃挕 鎰忔€濓細</strong>鍦ㄨ繖涓鏅氾紝浠庣瑳澹颁腑鍚埌浜嗐€婃姌鏉ㄦ煶銆嬬殑鏃嬪緥銆?/div>
+  </div>
+
+  <div class="section-card">
+    <h3>绗洓鍙ワ細浣曚汉涓嶈捣鏁呭洯鎯?/h3>
+
+    <div class="word-annotation"><strong>浣曚汉锛?/strong><strong style="color:var(--purple)">鍝竴涓汉</strong>锛熷弽闂彞锛屽姞寮鸿姘斻€?/div>
+    <div class="word-annotation"><strong>鏁呭洯锛?/strong>鏁呬埂銆?strong style="color:var(--purple)">鑰佸</strong>銆?/div>
+    <div class="word-annotation"><strong>鎯咃細</strong>鎬濆康銆?strong style="color:var(--purple)">鎬濅埂涔嬫儏</strong>銆?/div>
+
+    <div class="tip-box"><strong>馃挕 鎰忔€濓細</strong><strong>鍝竴涓汉鍚簡杩欓鏇插瓙锛屼笉浼氭秾璧峰鏁呬埂鐨勬€濆康鍛紵</strong></div>
+    <div class="tip-purple"><strong>馃挃 鎯呮劅楂樻疆锛?/strong>杩欐槸鍗冨彜鍚嶅彞锛佹潕鐧界敤鍙嶉棶鐨勬柟寮忚锛氬惉鍒般€婃姌鏉ㄦ煶銆嬶紝<strong>娌℃湁浜轰笉浼氭兂瀹?/strong>銆傝繖鍙ヨ瘽璇村嚭浜嗘墍鏈夋父瀛愮殑蹇冨０锛屾墍浠ユ祦浼犲崈骞翠笉琛般€?/div>
+  </div>
+</section>
+
+<!-- 浜掑姩锛氭劅鍙楀０闊崇殑浼犻€?-->
+<section id="interaction" style="margin: 32px 0;">
+  <h2>馃幍 浜掑姩锛氬０闊崇殑浼犻€?/h2>
+  <p style="color: var(--muted);">杞昏交鐐瑰嚮"绗涘瓙"鍥炬爣锛岀湅鐪嬪０闊虫槸鎬庝箞浠庝竴鐐?鏁ｅ叆鏄ラ婊℃礇鍩?鐨勶紒</p>
+
+  <div class="section-card">
+    <svg id="map-svg" viewBox="0 0 800 500" width="100%" height="340" xmlns="http://www.w3.org/2000/svg">
+      <rect width="800" height="500" fill="#0a1525" rx="12"/>
+
+      <!-- 鍩庡競鑳屾櫙 -->
+      <!-- 鍩庡 -->
+      <rect x="80" y="280" width="640" height="180" fill="none" stroke="#253650" stroke-width="2" rx="8" stroke-dasharray="8,4"/>
+      <text x="400" y="310" text-anchor="middle" fill="#253650" font-size="13" opacity="0.7">娲?闃?鍩?/text>
+
+      <!-- 鍩庡唴鎴垮眿 -->
+      <rect x="120" y="330" width="40" height="30" fill="#1a2840" rx="3"/>
+      <rect x="180" y="340" width="35" height="25" fill="#1e2d4a" rx="3"/>
+      <rect x="240" y="325" width="45" height="35" fill="#162035" rx="3"/>
+      <rect x="310" y="335" width="38" height="28" fill="#1a2840" rx="3"/>
+      <rect x="370" y="320" width="50" height="40" fill="#1e2d4a" rx="3"/>
+      <rect x="440" y="330" width="40" height="30" fill="#162035" rx="3"/>
+      <rect x="500" y="340" width="45" height="28" fill="#1a2840" rx="3"/>
+      <rect x="570" y="325" width="38" height="35" fill="#1e2d4a" rx="3"/>
+      <rect x="630" y="335" width="42" height="30" fill="#162035" rx="3"/>
+
+      <!-- 鏄ュぉ鏌虫爲 -->
+      <text x="160" y="375" font-size="20" opacity="0.6">馃尶</text>
+      <text x="400" y="385" font-size="20" opacity="0.6">馃尶</text>
+      <text x="620" y="378" font-size="20" opacity="0.6">馃尶</text>
+
+      <!-- 璇椾汉锛堝彸涓嬭鍩庡锛?-->
+      <circle cx="640" cy="220" r="16" fill="#c084fc" opacity="0.9"/>
+      <text x="640" y="225" text-anchor="middle" font-size="13" fill="#0d1b2a" font-weight="bold" pointer-events="none">璇?/text>
+      <text x="640" y="250" text-anchor="middle" fill="#c084fc" font-size="13">璇椾汉</text>
+
+      <!-- 绗涘０璧风偣锛堝煄鍐呮煇澶勶級 -->
+      <circle id="flute-source" cx="400" cy="350" r="12" fill="#c084fc" opacity="0.8"/>
+      <text x="400" y="355" text-anchor="middle" font-size="13" fill="#0d1b2a" font-weight="bold" pointer-events="none">馃幍</text>
+      <text x="400" y="375" text-anchor="middle" fill="#c084fc" font-size="12">绗涘０璧?/text>
+
+      <!-- 鎵╂暎鍦嗙幆锛堝姩鐢伙級 -->
+      <circle id="wave1" cx="400" cy="350" r="30" fill="none" stroke="#c084fc" stroke-width="2" opacity="0"/>
+      <circle id="wave2" cx="400" cy="350" r="30" fill="none" stroke="#60a5fa" stroke-width="2" opacity="0"/>
+      <circle id="wave3" cx="400" cy="350" r="30" fill="none" stroke="#c084fc" stroke-width="1.5" opacity="0"/>
+      <circle id="wave4" cx="400" cy="350" r="30" fill="none" stroke="#60a5fa" stroke-width="1.5" opacity="0"/>
+
+      <!-- 鏄ュ鏈堜寒 -->
+      <circle cx="680" cy="80" r="40" fill="#e8d5ff" opacity="0.9"/>
+      <text x="680" y="87" text-anchor="middle" font-size="24" opacity="0.6">馃寵</text>
+      <text x="680" y="135" text-anchor="middle" fill="#e8d5ff" font-size="13" opacity="0.7">鏄ュ</text>
+
+      <!-- 鏍囨敞鏂囧瓧 -->
+      <text x="400" y="430" text-anchor="middle" fill="#8ba8c8" font-size="13">鈥斺€?鏁ｅ叆鏄ラ婊℃礇鍩?鈥斺€?/text>
+      <text x="400" y="450" text-anchor="middle" fill="#8ba8c8" font-size="12">鐐瑰嚮 馃幍 鍥炬爣锛岃绗涘０鎵╂暎锛?/text>
+    </svg>
+
+    <div class="info-box" style="margin-top: 16px;">
+      <p style="margin: 0;"><strong>馃憜 鐐瑰嚮鐢婚潰涓殑 馃幍 鍥炬爣</strong>锛屾劅鍙楃瑳澹版槸鎬庝箞"鏁ｅ叆鏄ラ婊℃礇鍩?鐨勶紒</p>
+    </div>
+
+    <div id="wave-feedback" class="feedback"></div>
+  </div>
+</section>
+
+<!-- 鍏ㄨ瘲璧忔瀽鎬荤粨 -->
+<section id="analysis" style="margin: 32px 0;">
+  <h2>馃摉 鍏ㄨ瘲璧忔瀽</h2>
+  <div class="section-card">
+    <h3>馃幆 鍐欎綔鎵嬫硶鐩樼偣</h3>
+
+    <div class="info-box" style="border-left-color: var(--purple);">
+      <h4 style="color: var(--purple); margin-top: 0;">1. 浠ュ０鍐欓潤锛堝弽琛級</h4>
+      <p>鏄ュ鏈瀹夐潤锛屽嵈鍥犱负涓€缂曠瑳澹版墦鐮翠簡瀵傞潤銆傝瘲浜虹敤涓€涓?鏆?瀛楋紝鍐欏嚭浜嗗０闊虫倓鎮勬潵涓寸殑鎰熻鈥斺€斾綘鍚埌浜嗙瑳澹帮紝浣嗕笉鐭ラ亾瀹冧粠鍝噷鏉ワ紝杩欏彨<strong>浠ュ０鍐欓潤</strong>銆?/p>
+    </div>
+
+    <div class="info-box">
+      <h4 style="color: var(--brand); margin-top: 0;">2. 浠ヨ櫄鍐欏疄</h4>
+      <p>"鏁ｅ叆鏄ラ婊℃礇鍩?鈥斺€斿０闊虫槸鏃犲舰鐨勶紝鎬庝箞鑳?鏁?銆佽兘"婊?锛熶絾鏉庣櫧鍋忓亸杩欎箞鍐欎簡銆傝璇楃殑浜洪棴涓婄溂鐫涳紝鍗翠豢浣涚湡鐨勫惉鍒颁簡婊″煄鐨勭瑳澹般€傝繖灏辨槸<strong>浠ヨ櫄鍐欏疄</strong>鐨勫澶勩€?/p>
+    </div>
+
+    <div class="info-box" style="border-left-color: var(--ok);">
+      <h4 style="color: var(--ok); margin-top: 0;">3. 鍊熷吀鎶掓儏</h4>
+      <p>銆婃姌鏉ㄦ煶銆嬫槸鍙や汉閫佸埆鏃跺敱鐨勬瓕锛屾湁娣卞帤鐨勬枃鍖栬儗鏅€傛潕鐧戒竴璇?闂绘姌鏌?锛岃鑰呰嚜鐒惰仈鎯冲埌绂诲埆鍜屾€濅埂銆傝繖灏辨槸<strong>鐢ㄥ吀</strong>鈥斺€斿€熺敤鍓嶄汉鐨勬枃鍖栫Н绱紝璁╄瘲鍙ユ洿鏈夊垎閲忋€?/p>
+    </div>
+
+    <div class="info-box" style="border-left-color: var(--warn);">
+      <h4 style="color: var(--warn); margin-top: 0;">4. 浠ラ棶浣滅粨锛堝弽闂級</h4>
+      <p>"浣曚汉涓嶈捣鏁呭洯鎯?鈥斺€旇繖鏄竴涓?strong>鍙嶉棶鍙?/strong>锛屾剰鎬濇槸"娌℃湁浜轰笉浼氭兂瀹?銆傚弽闂瘮鐩存帴璇?鎴戝緢鎯冲"鏇存湁鍔涢噺锛屾洿璁╀汉鍥炲懗鏃犵┓銆?/p>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>馃専 杩欓璇楀ソ鍦ㄥ摢閲岋紵</h3>
+    <p>鏉庣櫧鐨勮繖棣栬瘲锛岀敤<strong>28涓瓧</strong>璁蹭簡涓€涓畬鏁寸殑鏁呬簨锛?/p>
+    <div style="margin: 12px 0; padding: 16px; background: var(--bg); border-radius: 10px; border-left: 4px solid var(--purple);">
+      <p style="margin: 6px 0;"><strong>璧峰洜锛?/strong>鏄ュ鏃呭眳娲涢槼</p>
+      <p style="margin: 6px 0;"><strong>缁忚繃锛?/strong>鍚埌涓嶇煡浠庡摢浼犳潵鐨勭瑳澹?/p>
+      <p style="margin: 6px 0;"><strong>楂樻疆锛?/strong>绗涘０鏄€婃姌鏉ㄦ煶銆嬶紝瑙﹀姩浜嗘€濅埂涔嬫儏</p>
+      <p style="margin: 6px 0;"><strong>缁撴灉锛?/strong>璇椾汉鎰熷徆锛氳皝涓嶆兂瀹跺憿锛?/p>
+    </div>
+    <p>鍏ㄨ瘲<strong>鎯呮櫙浜よ瀺</strong>锛氱瑳澹版槸"鏅?锛屾€濅埂鏄?鎯?锛涙櫙涓烘儏璁撅紝鎯呭洜鏅敓銆?/p>
+  </div>
+</section>
+
+<!-- 璇惧悗妫€娴?-->
+<section id="posttest" style="margin: 32px 0;">
+  <h2>鉁?璇惧悗妫€娴?/h2>
+  <p style="color: var(--muted); margin-bottom: 16px;">绛旈敊浜嗗彲浠ラ噸鏂伴€夋嫨鍝︼綖</p>
+
+  <div class="section-card quiz-question" data-quiz-type="post" data-question-num="1">
+    <p><strong>闂 1锛?/strong>"鏁ｅ叆鏄ラ婊℃礇鍩?涓殑"婊?瀛楀ソ鍦ㄥ摢閲岋紵</p>
+    <div class="quiz-options">
+      <button data-correct="false">A. 璇存槑绗涘０寰堝惖</button>
+      <button data-correct="false">B. 璇存槑娲涢槼鍩庡緢澶?/button>
+      <button data-correct="true">C. 澹伴煶鏃犲舰鍗磋兘浼犻亶鍏ㄥ煄锛屼互铏氬啓瀹?/button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="section-card quiz-question" data-quiz-type="post" data-question-num="2">
+    <p><strong>闂 2锛?/strong>"鎶樻煶"鍦ㄥ彜浠ｄ唬琛ㄤ粈涔堬紵</p>
+    <div class="quiz-options">
+      <button data-correct="true">A. 閫佸埆涓庢€濅埂</button>
+      <button data-correct="false">B. 鏄ュぉ寰堢編</button>
+      <button data-correct="false">C. 澶╂皵鏆栧拰</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="section-card quiz-question" data-quiz-type="post" data-question-num="3">
+    <p><strong>闂 3锛?/strong>"浣曚汉涓嶈捣鏁呭洯鎯?鐢ㄤ簡浠€涔堜慨杈炴墜娉曪紵</p>
+    <div class="quiz-options">
+      <button data-correct="false">A. 姣斿柣</button>
+      <button data-correct="true">B. 鍙嶉棶</button>
+      <button data-correct="false">C. 鎷熶汉</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="section-card quiz-question" data-quiz-type="post" data-question-num="4">
+    <p><strong>闂 4锛?/strong>杩欓璇楀啓鐨勬槸鍝釜瀛ｈ妭锛?/p>
+    <div class="quiz-options">
+      <button data-correct="true">A. 鏄ュぉ</button>
+      <button data-correct="false">B. 澶忓ぉ</button>
+      <button data-correct="false">C. 绉嬪ぉ</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+</section>
+
+<!-- 璇惧爞灏忕粨 -->
+<section id="summary" style="margin: 32px 0;">
+  <h2>馃搾 璇惧爞灏忕粨</h2>
+  <div class="section-card">
+    <h3>浠婂ぉ鎴戜滑瀛﹀埌浜嗭細</h3>
+    <p style="margin: 8px 0;">鉁?銆婃槬澶滄礇鍩庨椈绗涖€嬫槸鏉庣櫧婕父娲涢槼鏃跺啓鐨勬€濅埂璇?/p>
+    <p style="margin: 8px 0;">鉁?"鏆楅澹?浠ュ０鍐欓潤锛?婊℃礇鍩?浠ヨ櫄鍐欏疄</p>
+    <p style="margin: 8px 0;">鉁?"鎶樻煶"鏄彜浠ｉ€佸埆鏇诧紝浠ｈ〃绂诲埆鍜屾€濅埂</p>
+    <p style="margin: 8px 0;">鉁?"浣曚汉涓嶈捣鏁呭洯鎯?鏄崈鍙ゅ悕鍙ワ紝閬撳嚭鎵€鏈夋父瀛愮殑蹇冨０</p>
+    <p style="margin: 8px 0;">鉁?鍏ㄨ瘲鎯呮櫙浜よ瀺锛岀敤澹伴煶浼犻€掓儏鎰?/p>
+
+    <h3 style="margin-top: 24px;">馃専 鎷撳睍鎬濊€?/h3>
+    <p>鏉庣櫧杩樻湁寰堝鎬濅埂鐨勮瘲锛屾瘮濡傘€婇潤澶滄€濄€嬶紙"涓惧ご鏈涙槑鏈堬紝浣庡ご鎬濇晠涔?锛夈€傚姣斾竴涓嬶細銆婇潤澶滄€濄€嬫槸鐢ㄤ粈涔堟潵鍐欐€濅埂鐨勶紵杩欓銆婃槬澶滄礇鍩庨椈绗涖€嬪張鏄敤浠€涔堟潵鍐欐€濅埂鐨勶紵</p>
+    <p style="color: var(--muted); margin-top: 8px; font-size: 14px;">鎻愮ず锛氥€婇潤澶滄€濄€嬬敤"鏈堜寒"鍐欐€濆康锛屻€婃槬澶滄礇鍩庨椈绗涖€嬬敤"绗涘０"鍐欐€濆康鈥斺€斾竴涓槸瑙嗚锛屼竴涓槸鍚銆?/p>
+  </div>
+</section>
+
+<footer style="margin-top: 48px; padding: 24px; text-align: center; color: var(--muted); font-size: 14px; border-top: 2px solid var(--line);">
+  <p>銆婃槬澶滄礇鍩庨椈绗涖€嬩簰鍔ㄨ浠?/p>
+  <p>鍒朵綔浜?2026-06-04 | TeachAny</p>
+  <p style="margin-top: 12px;">馃幍 璺熺潃鏉庣櫧鐨勭瑳澹帮紝鎰熷彈鍙や汉鐨勬€濅埂涔嬫儏锛?/p>
+</footer>
+
+<script>
+// ============== 鎻愮ず ==============
+function showHint(num) {
+  const hints = {
+    1: '馃挕 鎻愮ず锛?鏆?涓嶆槸榛戞殫鐨勬剰鎬濓紝鑰屾槸"鎮勬倓鍦般€佷笉鐭ヤ笉瑙夊湴"銆傜瑳澹颁笉鐭ラ亾浠庡摢閲屼紶鏉ワ紝鏄瘲浜鸿鍔ㄥ惉鍒扮殑锛岃€屼笉鏄富鍔ㄥ幓鍚殑銆傝繖鍙?鏆?銆?,
+    2: '馃挕 鎻愮ず锛?鎶樻煶"鏄彜浠ｉ€佸埆鏃跺敱鐨勬洸瀛愬悕绉帮紝鍙や汉鍦ㄥ垎鍒椂浼氭姌涓€鏋濇煶鏉￠€佺粰鏈嬪弸锛岃〃绀轰緷渚濅笉鑸嶃€傛墍浠ュ惉鍒般€婃姌鏉ㄦ煶銆嬪氨浼氭兂璧风鍒紝鎯冲康瀹朵埂銆?,
+    3: '馃挕 鎻愮ず锛氳瘲棰橀噷鏈?娲涘煄"鈥斺€斿氨鏄礇闃炽€傛礇闃冲湪浠婂ぉ鐨勬渤鍗楃渷銆傝瘲浜哄綋鏃跺簲璇ユ槸鍦ㄥ鍦版极娓革紝涓嶅湪瀹朵埂銆?
+  };
+  const fb = document.getElementById('hint-feedback');
+  fb.className = 'feedback show correct';
+  fb.innerHTML = hints[num];
+}
+
+// ============== 娴嬭瘯绛旈锛堢瓟閿欏彲閲嶉€夛級==============
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.quiz-options').forEach(function(optGroup) {
+    optGroup.querySelectorAll('button').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const siblings = this.parentElement.querySelectorAll('button');
+        siblings.forEach(function(sib) {
+          sib.classList.remove('correct', 'incorrect');
+        });
+
+        const isCorrect = this.getAttribute('data-correct') === 'true';
+        this.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+        const feedbackDiv = this.closest('.quiz-question').querySelector('.feedback');
+        if (feedbackDiv) {
+          feedbackDiv.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
+          feedbackDiv.innerHTML = isCorrect
+            ? '鉁?绛斿浜嗭紒澶浜嗭紒'
+            : '鉂?涓嶅お瀵瑰摝锛屽啀鎯虫兂锛熷彲浠ョ户缁€夋嫨鍏朵粬绛旀锝?;
+        }
+      });
+    });
+  });
+
+  // 绗涘０鎵╂暎鍔ㄧ敾
+  var fluteSource = document.getElementById('flute-source');
+  var mapSvg = document.getElementById('map-svg');
+  if (fluteSource && mapSvg) {
+    fluteSource.style.cursor = 'pointer';
+    fluteSource.addEventListener('click', function() {
+      var waves = ['wave1','wave2','wave3','wave4'];
+      var waveEls = waves.map(function(w){return document.getElementById(w);});
+      var fb = document.getElementById('wave-feedback');
+
+      // 閲嶇疆
+      waveEls.forEach(function(el){el.setAttribute('opacity','0');el.setAttribute('r','30');});
+
+      var step = 0;
+      var maxRadius = 300;
+      var duration = 2000;
+      var interval = duration / 4;
+
+      var timer = setInterval(function(){
+        if(step < 4){
+          waveEls[step].setAttribute('opacity','0.7');
+          var animTimer = setInterval(function(){
+            var currentR = parseFloat(waveEls[step].getAttribute('r'));
+            if(currentR < maxRadius){
+              waveEls[step].setAttribute('r', currentR + 3);
+              waveEls[step].setAttribute('opacity', Math.max(0, 0.7 - (currentR/maxRadius)*0.7));
+            } else {
+              clearInterval(animTimer);
+              waveEls[step].setAttribute('opacity','0');
+            }
+          }, 30);
+          step++;
+        } else {
+          clearInterval(timer);
+        }
+      }, interval);
+
+      if(fb){
+        fb.className = 'feedback show correct';
+        fb.innerHTML = '馃幍 <strong>绗涘０鏁ｅ紑浜嗭紒</strong><br>浠庡煄涓竴鐐癸紝椋樻暎鍒版槬椋庨噷锛屼紶閬嶆暣涓礇闃冲煄銆?br>杩欏氨鏄瘲涓?鏁ｅ叆鏄ラ婊℃礇鍩?鐨勬剰澧冿紒';
+      }
+    });
+  }
+});
+
+console.log('銆婃槬澶滄礇鍩庨椈绗涖€嬩簰鍔ㄨ浠跺凡鍔犺浇');
+</script>
+
+</body>
+</html>
